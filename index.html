@@ -9,7 +9,7 @@
     <style>
         :root {
             --primary-dark: #070b14;
-            --sidebar-dark: rgba(10, 15, 29, 0.95);
+            --sidebar-dark: rgba(10, 15, 29, 0.98);
             --electric-blue: #2563EB;
             --neon-purple: #7C3AED;
         }
@@ -19,11 +19,6 @@
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
             background-attachment: fixed;
-            padding-bottom: 70px; /* Space for mobile nav */
-        }
-
-        @media (min-width: 768px) {
-            body { padding-bottom: 0; }
         }
 
         @keyframes gradientBG {
@@ -32,12 +27,14 @@
             100% { background-position: 0% 50%; }
         }
 
-        @keyframes pulse-gold {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-            70% { transform: scale(1.02); box-shadow: 0 0 0 15px rgba(245, 158, 11, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        /* Side Drawer for Mobile */
+        #mobileDrawer {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(-100%);
         }
-        .pulse-box { animation: pulse-gold 2s infinite; }
+        #mobileDrawer.open {
+            transform: translateX(0);
+        }
 
         .glass-card {
             background: rgba(255, 255, 255, 0.03);
@@ -49,322 +46,285 @@
             background: linear-gradient(135deg, var(--electric-blue), var(--neon-purple));
         }
 
-        /* Mobile Bottom Nav Styling */
-        .mobile-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(10, 15, 29, 0.9);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            z-index: 1000;
-        }
-
-        .mobile-nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 10px;
-            color: #94a3b8;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-
-        .mobile-nav-item.active {
-            color: #3b82f6;
-        }
-
         #paymentModal {
             display: none; position: fixed; inset: 0; z-index: 2000;
             background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(12px);
             align-items: center; justify-content: center;
             padding: 1rem;
         }
+        
+        .pulse-box { animation: pulse-gold 2s infinite; }
+        @keyframes pulse-gold {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            70% { transform: scale(1.02); box-shadow: 0 0 0 15px rgba(245, 158, 11, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
     </style>
 </head>
 <body class="text-white font-sans">
 
-    <div class="mobile-nav md:hidden">
-        <a href="index.html" class="mobile-nav-item active">
-            <i class="fas fa-th-large text-xl mb-1"></i>
-            <span>Home</span>
-        </a>
-        <a href="profile.html" class="mobile-nav-item">
-            <i class="fas fa-user text-xl mb-1"></i>
-            <span>Profile</span>
-        </a>
-        <a href="order.html" class="mobile-nav-item">
-            <i class="fas fa-shopping-bag text-xl mb-1"></i>
-            <span>Orders</span>
-        </a>
-        <a href="offers.html" class="mobile-nav-item">
-            <i class="fas fa-fire text-xl mb-1"></i>
-            <span>Offers</span>
-        </a>
-        <a href="https://wa.me/94750810385" target="_blank" class="mobile-nav-item text-green-500">
-            <i class="fas fa-headset text-xl mb-1"></i>
-            <span>Help</span>
-        </a>
+    <div class="md:hidden flex items-center justify-between p-4 bg-[#0a0f1d]/80 backdrop-blur-md sticky top-0 z-50 border-b border-white/5">
+        <button onclick="toggleDrawer()" class="text-2xl text-white">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="flex flex-col items-end">
+            <h2 class="text-sm font-black uppercase tracking-tighter">Rynex Store</h2>
+            <span id="mobileUserID" class="text-[9px] text-purple-400 font-bold">ID: LOADING...</span>
+        </div>
+    </div>
+
+    <div id="mobileDrawer" class="fixed inset-0 z-[60] md:hidden">
+        <div onclick="toggleDrawer()" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+        <div class="absolute inset-y-0 left-0 w-72 bg-[#0a0f1d] shadow-2xl border-r border-white/10 p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center"><i class="fas fa-bolt"></i></div>
+                    <span class="font-black tracking-tighter uppercase">Rynex Menu</span>
+                </div>
+                <button onclick="toggleDrawer()" class="text-slate-400"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <nav class="space-y-4 flex-1">
+                <a href="index.html" class="flex items-center p-4 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 font-bold"><i class="fas fa-th-large w-8 text-xl"></i> Dashboard</a>
+                <a href="profile.html" class="flex items-center p-4 rounded-xl hover:bg-white/5 text-slate-400"><i class="fas fa-user w-8 text-xl"></i> Profile Page</a>
+                <a href="order.html" class="flex items-center p-4 rounded-xl hover:bg-white/5 text-slate-400"><i class="fas fa-shopping-bag w-8 text-xl"></i> Order Page</a>
+                <a href="offers.html" class="flex items-center p-4 rounded-xl hover:bg-white/5 text-slate-400"><i class="fas fa-fire w-8 text-xl text-orange-500"></i> Special Offers</a>
+            </nav>
+            <div class="pt-6 border-t border-white/10 space-y-3">
+                <a href="https://wa.me/94750810385" class="flex items-center p-4 rounded-xl bg-green-500/10 text-green-400 font-bold"><i class="fas fa-headset w-8 text-xl"></i> Support</a>
+                <button onclick="localStorage.removeItem('userEmail'); window.location.href='login.html'" class="flex items-center p-4 rounded-xl text-red-500 w-full"><i class="fas fa-sign-out-alt w-8 text-xl"></i> Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row min-h-screen relative">
+        <div class="hidden md:flex w-72 bg-[#0a0f1d] p-8 border-r border-white/5 flex-col h-screen sticky top-0">
+            <div class="flex items-center gap-3 mb-12">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center"><i class="fas fa-bolt"></i></div>
+                <div><h2 class="text-lg font-black uppercase leading-none">Rynex</h2><p id="desktopUserID" class="text-[10px] text-purple-400 font-bold uppercase tracking-widest mt-1">ID: LOADING...</p></div>
+            </div>
+            <nav class="space-y-2 flex-1">
+                <a href="index.html" class="flex items-center p-3 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 font-bold"><i class="fas fa-th-large w-6 mr-3"></i> Dashboard</a>
+                <a href="profile.html" class="flex items-center p-3 rounded-xl hover:bg-white/5 text-slate-400 transition"><i class="fas fa-user w-6 mr-3"></i> Profile Page</a>
+                <a href="order.html" class="flex items-center p-3 rounded-xl hover:bg-white/5 text-slate-400 transition"><i class="fas fa-shopping-bag w-6 mr-3"></i> Order Page</a>
+                <a href="offers.html" class="flex items-center p-3 rounded-xl hover:bg-white/5 text-slate-400 transition"><i class="fas fa-fire w-6 mr-3 text-orange-500"></i> Special Offers</a>
+            </nav>
+            <div class="pt-6 border-t border-white/5">
+                <button onclick="localStorage.removeItem('userEmail'); window.location.href='login.html'" class="flex items-center p-3 rounded-xl text-red-500 w-full hover:bg-red-500/5 transition"><i class="fas fa-sign-out-alt w-6 mr-3"></i> Logout</button>
+            </div>
+        </div>
+
+        <div class="flex-1 p-4 md:p-12">
+            <header class="mb-10 text-center md:text-left">
+                <h1 class="text-4xl md:text-5xl font-black italic tracking-tighter uppercase text-white">AVAILABLE PLANS</h1>
+                <p class="text-slate-400 mt-2 font-medium italic">Premium Digital Services at your fingertips.</p>
+            </header>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <div class="glass-card p-6 rounded-[2.5rem] border-t-4 border-cyan-500">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-cyan-600/10 rounded-xl flex items-center justify-center text-cyan-400"><i class="fas fa-chart-line text-2xl"></i></div>
+                        <h3 class="text-2xl font-black uppercase tracking-tighter">Trading View</h3>
+                    </div>
+                    <p class="text-xs text-slate-400 font-bold mb-6 italic uppercase">PREMIUM ANALYSIS ACCESS</p>
+                    <div class="space-y-3">
+                        <div class="p-4 rounded-2xl flex justify-between items-center bg-white/5">
+                            <div><p class="text-[10px] text-slate-400 font-black">MONTHLY</p><p id="val_p_trade_mo" class="text-xl font-black">$10.00</p></div>
+                            <button onclick="openModal('TradingView - Monthly', 'p_trade_mo')" class="btn-premium px-4 py-2 rounded-lg text-[10px] font-black uppercase">Buy</button>
+                        </div>
+                        <div class="p-4 rounded-2xl flex justify-between items-center bg-white/5 border border-cyan-500/20">
+                            <div><p class="text-[10px] text-cyan-400 font-black">YEARLY</p><p id="val_p_trade_yr" class="text-xl font-black">$95.00</p></div>
+                            <button onclick="openModal('TradingView - Yearly', 'p_trade_yr')" class="btn-premium px-4 py-2 rounded-lg text-[10px] font-black uppercase">Buy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-[2.5rem] border-t-4 border-purple-600">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-purple-600/10 rounded-xl flex items-center justify-center text-purple-500"><i class="fas fa-brain text-2xl"></i></div>
+                        <h3 class="text-2xl font-black uppercase tracking-tighter">AI Pack</h3>
+                    </div>
+                    <p class="text-xs text-slate-400 font-bold mb-6 italic uppercase">COMPLETE AI SUITE</p>
+                    <div class="space-y-3">
+                        <div class="p-4 rounded-2xl flex justify-between items-center bg-white/5">
+                            <div><p class="text-[10px] text-slate-400 font-black">MONTHLY</p><p id="val_p_ai_mo" class="text-xl font-black">$7.49</p></div>
+                            <button onclick="openModal('AI Pack - Monthly', 'p_ai_mo')" class="btn-premium px-4 py-2 rounded-lg text-[10px] font-black uppercase">Buy</button>
+                        </div>
+                        <div class="p-4 rounded-2xl flex justify-between items-center bg-white/5 border border-purple-500/20">
+                            <div><p class="text-[10px] text-purple-400 font-black">YEARLY</p><p id="val_p_ai_yr" class="text-xl font-black">$69.00</p></div>
+                            <button onclick="openModal('AI Pack - Yearly', 'p_ai_yr')" class="btn-premium px-4 py-2 rounded-lg text-[10px] font-black uppercase">Buy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-[2.5rem] border-t-4 border-blue-600">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-blue-600/10 rounded-xl flex items-center justify-center text-blue-400"><i class="fas fa-play text-2xl"></i></div>
+                        <h3 class="text-2xl font-black uppercase tracking-tighter">Media</h3>
+                    </div>
+                    <p class="text-xs text-slate-400 font-bold mb-6 italic uppercase">NETFLIX & STREAMING</p>
+                    <div class="space-y-3">
+                        <div class="p-4 rounded-2xl flex justify-between items-center bg-white/5">
+                            <div><p class="text-[10px] text-slate-400 font-black">MONTHLY</p><p id="val_p_mov_mo" class="text-xl font-black">$12.50</p></div>
+                            <button onclick="openModal('Media - Monthly', 'p_mov_mo')" class="btn-premium px-4 py-2 rounded-lg text-[10px] font-black uppercase">Buy</button>
+                        </div>
+                        <div class="p-4 rounded-2xl flex justify-between items-center bg-white/5 border border-blue-500/20">
+                            <div><p class="text-[10px] text-blue-400 font-black">YEARLY</p><p id="val_p_mov_yr" class="text-xl font-black">$110.00</p></div>
+                            <button onclick="openModal('Media - Yearly', 'p_mov_yr')" class="btn-premium px-4 py-2 rounded-lg text-[10px] font-black uppercase">Buy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-[2.5rem] border-t-4 border-emerald-500">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-emerald-600/10 rounded-xl flex items-center justify-center text-emerald-500"><i class="fas fa-graduation-cap text-2xl"></i></div>
+                        <h3 class="text-2xl font-black uppercase tracking-tighter">Learning</h3>
+                    </div>
+                    <p class="text-xs text-slate-400 font-bold mb-6 italic uppercase">SKILL UPGRADE PACK</p>
+                    <div class="space-y-3">
+                        <div class="p-4 rounded-2xl flex justify-between items-center bg-white/5">
+                            <div><p class="text-[10px] text-slate-400 font-black">MONTHLY</p><p id="val_p_learn_mo" class="text-xl font-black">$9.99</p></div>
+                            <button onclick="openModal('Learning - Monthly', 'p_learn_mo')" class="btn-premium px-4 py-2 rounded-lg text-[10px] font-black uppercase">Buy</button>
+                        </div>
+                        <div class="p-4 rounded-2xl flex justify-between items-center bg-white/5 border border-emerald-500/20">
+                            <div><p class="text-[10px] text-emerald-400 font-black">YEARLY</p><p id="val_p_learn_yr" class="text-xl font-black">$85.00</p></div>
+                            <button onclick="openModal('Learning - Yearly', 'p_learn_yr')" class="btn-premium px-4 py-2 rounded-lg text-[10px] font-black uppercase">Buy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-8 md:p-12 rounded-[3rem] bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-purple-500/30 mb-10 text-center md:text-left">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-8">
+                    <div>
+                        <h2 class="text-3xl md:text-5xl font-black uppercase italic tracking-tighter mb-4"><i class="fas fa-crown text-yellow-500 mr-2"></i> Combo Yearly</h2>
+                        <p class="text-slate-400 max-w-xl italic text-sm md:text-base">Get access to all 19 services including Netflix, TradingView, AI and more for a full year.</p>
+                    </div>
+                    <div class="flex flex-col items-center md:items-end">
+                        <div id="val_p_combo_yr" class="text-5xl md:text-6xl font-black mb-6">$99.00</div>
+                        <button onclick="openModal('Ultimate Combo', 'p_combo_yr')" class="btn-premium px-10 py-5 rounded-2xl text-sm font-black uppercase tracking-widest">Buy Ultimate Combo</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 md:p-12 rounded-[2.5rem] border-4 bg-[#FEF3C7] border-[#F59E0B] relative overflow-hidden">
+                <i class="fas fa-exclamation-circle absolute -right-6 -bottom-6 text-9xl text-amber-500/10 -rotate-12"></i>
+                <div class="relative z-10 text-[#92400E]">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-12 h-12 rounded-xl bg-[#F59E0B] flex items-center justify-center text-white text-2xl"><i class="fas fa-shield-alt"></i></div>
+                        <h2 class="text-2xl md:text-4xl font-black uppercase italic tracking-tighter">⚠️ Important Instructions</h2>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 font-bold">
+                        <div class="space-y-4">
+                            <p class="text-xl md:text-2xl font-black uppercase leading-tight">Payments accepted ONLY via Telegram or WhatsApp.</p>
+                            <div class="bg-amber-600/5 p-5 rounded-2xl space-y-2 uppercase text-sm">
+                                <p><i class="fas fa-times-circle mr-2"></i> Do NOT pay without contacting us first.</p>
+                                <p><i class="fas fa-ban mr-2"></i> Other methods will NOT be accepted.</p>
+                            </div>
+                        </div>
+                        <div class="space-y-6">
+                            <div class="flex items-start gap-4 bg-white/40 p-5 rounded-2xl">
+                                <i class="fas fa-clock text-3xl mt-1 text-[#F59E0B]"></i>
+                                <div>
+                                    <p class="font-black uppercase text-xl">⏳ Activation:</p>
+                                    <p>Usually 30 mins to 2 hours.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4 bg-[#92400E] text-white p-5 rounded-2xl shadow-xl pulse-box">
+                                <i class="fas fa-bolt text-3xl mt-1 text-yellow-400"></i>
+                                <div>
+                                    <p class="font-black uppercase text-xl">🚀 Fast Activation:</p>
+                                    <p>Send screenshot via Telegram/WA immediately.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="paymentModal">
-        <div class="glass-card p-6 rounded-[2rem] w-full max-w-md relative border-t-4 border-blue-500 shadow-2xl">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white transition">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-            <div id="step1">
-                <div class="text-center mb-6">
-                    <h3 class="text-xl font-black uppercase italic tracking-tighter text-white">Secure Payment</h3>
-                    <p class="text-slate-400 text-xs mt-1 font-medium">Select payment method to proceed</p>
-                </div>
+        <div class="glass-card p-8 rounded-[2rem] w-full max-w-md relative border-t-4 border-blue-500">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-500"><i class="fas fa-times text-xl"></i></button>
+            <div id="step1" class="text-center">
+                <h3 class="text-xl font-black uppercase italic mb-6">Select Payment Method</h3>
                 <div class="space-y-3">
-                    <div onclick="nextStep('Binance (USDT)')" class="method-card glass-card p-4 rounded-xl flex items-center gap-4 cursor-pointer">
-                        <div class="w-12 h-12 bg-yellow-400/10 rounded-lg flex items-center justify-center text-yellow-500 border border-yellow-500/20"><i class="fab fa-bitcoin text-2xl"></i></div>
-                        <div><h4 class="font-black text-base text-white uppercase tracking-tighter">Binance (USDT)</h4><p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Fast Crypto Payment</p></div>
+                    <div onclick="nextStep('Binance')" class="glass-card p-4 rounded-xl flex items-center gap-4 cursor-pointer hover:bg-white/10 transition">
+                        <div class="w-12 h-12 bg-yellow-400/10 text-yellow-500 rounded-lg flex items-center justify-center"><i class="fab fa-bitcoin text-2xl"></i></div>
+                        <div class="text-left"><p class="font-black uppercase tracking-tighter">Binance (USDT)</p></div>
                     </div>
-                    <div onclick="nextStep('Bank Transfer')" class="method-card glass-card p-4 rounded-xl flex items-center gap-4 cursor-pointer">
-                        <div class="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-400 border border-blue-500/20"><i class="fas fa-university text-xl"></i></div>
-                        <div><h4 class="font-black text-base text-white uppercase tracking-tighter">Bank Transfer</h4><p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest">LKR Local Banks</p></div>
+                    <div onclick="nextStep('Bank')" class="glass-card p-4 rounded-xl flex items-center gap-4 cursor-pointer hover:bg-white/10 transition">
+                        <div class="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center"><i class="fas fa-university text-xl"></i></div>
+                        <div class="text-left"><p class="font-black uppercase tracking-tighter">Bank Transfer</p></div>
                     </div>
                 </div>
             </div>
             <div id="step2" class="hidden text-center">
-                <h3 class="text-2xl font-black uppercase italic tracking-tighter mb-2 text-white">PURCHASE NOW</h3>
-                <div class="grid grid-cols-2 gap-3 mt-4">
-                    <a id="waLink" href="#" target="_blank" class="p-5 rounded-2xl bg-green-500/10 border border-green-500/20 flex flex-col items-center gap-2">
+                <h3 class="text-xl font-black uppercase italic mb-4">Complete Purchase</h3>
+                <p class="text-slate-400 text-xs mb-6">Choose an app to send your order details.</p>
+                <div class="grid grid-cols-2 gap-4">
+                    <a id="waLink" href="#" target="_blank" class="p-4 rounded-xl bg-green-500/10 border border-green-500/20 flex flex-col items-center gap-2">
                         <i class="fab fa-whatsapp text-3xl text-green-500"></i>
-                        <span class="font-black uppercase text-[9px] tracking-widest text-green-500">WhatsApp</span>
+                        <span class="text-[10px] font-black uppercase">WhatsApp</span>
                     </a>
-                    <a id="tgLink" href="#" target="_blank" class="p-5 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex flex-col items-center gap-2">
+                    <a id="tgLink" href="#" target="_blank" class="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 flex flex-col items-center gap-2">
                         <i class="fab fa-telegram-plane text-3xl text-blue-400"></i>
-                        <span class="font-black uppercase text-[9px] tracking-widest text-blue-400">Telegram</span>
+                        <span class="text-[10px] font-black uppercase">Telegram</span>
                     </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="flex flex-col md:flex-row min-h-screen relative z-10">
-        <div class="hidden md:flex w-72 bg-[#0a0f1d] p-6 border-r border-white/5 flex-col justify-between h-screen sticky top-0">
-            <div>
-                <div class="flex items-center gap-3 mb-12">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center"><i class="fas fa-bolt text-white"></i></div>
-                    <div><h2 class="text-lg font-black text-white uppercase leading-none">Rynex</h2><p id="userIDDisplayDesktop" class="text-[10px] text-purple-400 font-bold uppercase tracking-widest mt-1">ID: LOADING...</p></div>
-                </div>
-                <nav class="space-y-2 text-sm">
-                    <a href="index.html" class="flex items-center p-3 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 font-bold"><i class="fas fa-th-large w-6 mr-3"></i> Dashboard</a>
-                    <a href="profile.html" class="flex items-center p-3 rounded-xl hover:bg-white/5 text-slate-400 transition"><i class="fas fa-user w-6 mr-3"></i> Profile Page</a>
-                    <a href="order.html" class="flex items-center p-3 rounded-xl hover:bg-white/5 text-slate-400 transition"><i class="fas fa-shopping-bag w-6 mr-3"></i> Order Page</a>
-                    <a href="offers.html" class="flex items-center p-3 rounded-xl hover:bg-white/5 text-slate-400 transition"><i class="fas fa-fire w-6 mr-3 text-orange-500"></i> Special Offers</a>
-                </nav>
-            </div>
-            <div class="pt-6 border-t border-white/5">
-                <a href="#" onclick="localStorage.removeItem('userEmail'); window.location.href='login.html'" class="flex items-center p-3 rounded-xl hover:bg-red-500/10 text-red-500 transition">
-                    <i class="fas fa-sign-out-alt w-6 mr-3"></i> Logout
-                </a>
-            </div>
-        </div>
-
-        <div class="flex-1 p-4 md:p-12 overflow-y-auto">
-            <div class="md:hidden flex justify-between items-center mb-6">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center"><i class="fas fa-bolt text-sm"></i></div>
-                    <span id="userIDDisplayMobile" class="text-[10px] font-black tracking-widest text-purple-400">ID: LOADING...</span>
-                </div>
-                <button onclick="localStorage.removeItem('userEmail'); window.location.href='login.html'" class="text-red-500 text-sm font-black uppercase tracking-widest">Logout</button>
-            </div>
-
-            <header class="mb-8 md:mb-12">
-                <h1 class="text-3xl md:text-5xl font-black italic tracking-tighter uppercase text-white">AVAILABLE PLANS</h1>
-                <p class="text-slate-400 mt-1 text-sm md:text-base italic">Select your preferred duration to start.</p>
-            </header>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-                <div class="glass-card p-5 rounded-[2rem] border-t-4 border-cyan-500">
-                    <div class="flex items-center gap-3 mb-3">
-                        <div class="w-10 h-10 bg-cyan-600/10 rounded-xl flex items-center justify-center text-cyan-400"><i class="fas fa-chart-line text-xl"></i></div>
-                        <h3 class="text-xl font-black uppercase tracking-tighter">Trading View</h3>
-                    </div>
-                    <p class="text-[11px] text-slate-400 font-bold mb-4 uppercase">TradingView PREMIUM Access</p>
-                    <div class="space-y-2">
-                        <div class="p-3 rounded-xl flex justify-between items-center bg-white/5">
-                            <div><p class="text-[9px] text-slate-300 font-black">Monthly</p><p id="val_p_trade_mo" class="text-lg font-black">$10.00</p></div>
-                            <button onclick="openModal('TradingView - Monthly', 'p_trade_mo')" class="btn-premium text-white text-[9px] px-4 py-2 rounded-lg font-black uppercase">Buy</button>
-                        </div>
-                        <div class="p-3 rounded-xl flex justify-between items-center bg-white/5 border border-cyan-500/20">
-                            <div><p class="text-[9px] text-cyan-400 font-black">Yearly</p><p id="val_p_trade_yr" class="text-lg font-black">$95.00</p></div>
-                            <button onclick="openModal('TradingView - Yearly', 'p_trade_yr')" class="btn-premium text-white text-[9px] px-4 py-2 rounded-lg font-black uppercase">Buy</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="glass-card p-5 rounded-[2rem] border-t-4 border-purple-600">
-                    <div class="flex items-center gap-3 mb-3">
-                        <div class="w-10 h-10 bg-purple-600/10 rounded-xl flex items-center justify-center text-purple-500"><i class="fas fa-brain text-xl"></i></div>
-                        <h3 class="text-xl font-black uppercase tracking-tighter">AI Pack</h3>
-                    </div>
-                    <p class="text-[11px] text-slate-400 font-bold mb-4 uppercase">AI PRO Services Pack</p>
-                    <div class="space-y-2">
-                        <div class="p-3 rounded-xl flex justify-between items-center bg-white/5">
-                            <div><p class="text-[9px] text-slate-300 font-black">Monthly</p><p id="val_p_ai_mo" class="text-lg font-black">$7.49</p></div>
-                            <button onclick="openModal('AI Pack - Monthly', 'p_ai_mo')" class="btn-premium text-white text-[9px] px-4 py-2 rounded-lg font-black uppercase">Buy</button>
-                        </div>
-                        <div class="p-3 rounded-xl flex justify-between items-center bg-white/5 border border-purple-500/20">
-                            <div><p class="text-[9px] text-purple-400 font-black">Yearly</p><p id="val_p_ai_yr" class="text-lg font-black">$69.00</p></div>
-                            <button onclick="openModal('AI Pack - Yearly', 'p_ai_yr')" class="btn-premium text-white text-[9px] px-4 py-2 rounded-lg font-black uppercase">Buy</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="glass-card p-5 rounded-[2rem] border-t-4 border-blue-600">
-                    <div class="flex items-center gap-3 mb-3">
-                        <div class="w-10 h-10 bg-blue-600/10 rounded-xl flex items-center justify-center text-blue-500"><i class="fas fa-play text-xl"></i></div>
-                        <h3 class="text-xl font-black uppercase tracking-tighter">Movies</h3>
-                    </div>
-                    <p class="text-[11px] text-slate-400 font-bold mb-4 uppercase">Premium Entertainment</p>
-                    <div class="space-y-2">
-                        <div class="p-3 rounded-xl flex justify-between items-center bg-white/5">
-                            <div><p class="text-[9px] text-slate-300 font-black">Monthly</p><p id="val_p_mov_mo" class="text-lg font-black">$12.50</p></div>
-                            <button onclick="openModal('Entertainment - Monthly', 'p_mov_mo')" class="btn-premium text-white text-[9px] px-4 py-2 rounded-lg font-black uppercase">Buy</button>
-                        </div>
-                        <div class="p-3 rounded-xl flex justify-between items-center bg-white/5 border border-blue-500/20">
-                            <div><p class="text-[9px] text-blue-400 font-black">Yearly</p><p id="val_p_mov_yr" class="text-lg font-black">$110.00</p></div>
-                            <button onclick="openModal('Entertainment - Yearly', 'p_mov_yr')" class="btn-premium text-white text-[9px] px-4 py-2 rounded-lg font-black uppercase">Buy</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="glass-card p-5 rounded-[2rem] border-t-4 border-emerald-500">
-                    <div class="flex items-center gap-3 mb-3">
-                        <div class="w-10 h-10 bg-emerald-600/10 rounded-xl flex items-center justify-center text-emerald-500"><i class="fas fa-graduation-cap text-xl"></i></div>
-                        <h3 class="text-xl font-black uppercase tracking-tighter">Courses</h3>
-                    </div>
-                    <p class="text-[11px] text-slate-400 font-bold mb-4 uppercase">Skill Learning Access</p>
-                    <div class="space-y-2">
-                        <div class="p-3 rounded-xl flex justify-between items-center bg-white/5">
-                            <div><p class="text-[9px] text-slate-300 font-black">Monthly</p><p id="val_p_learn_mo" class="text-lg font-black">$9.99</p></div>
-                            <button onclick="openModal('Learning - Monthly', 'p_learn_mo')" class="btn-premium text-white text-[9px] px-4 py-2 rounded-lg font-black uppercase">Buy</button>
-                        </div>
-                        <div class="p-3 rounded-xl flex justify-between items-center bg-white/5 border border-emerald-500/20">
-                            <div><p class="text-[9px] text-emerald-400 font-black">Yearly</p><p id="val_p_learn_yr" class="text-lg font-black">$85.00</p></div>
-                            <button onclick="openModal('Learning - Yearly', 'p_learn_yr')" class="btn-premium text-white text-[9px] px-4 py-2 rounded-lg font-black uppercase">Buy</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-card p-6 md:p-10 rounded-[2rem] bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-purple-500/30 mb-8">
-                <div class="flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
-                    <div>
-                        <h2 class="text-3xl md:text-5xl font-black uppercase italic tracking-tighter mb-2"><i class="fas fa-crown text-yellow-500"></i> Ultimate Combo</h2>
-                        <p class="text-slate-400 text-xs md:text-sm max-w-xl italic">NFLX 4K, Utubye, AI Pack, TradingView & More - 365 Days Access.</p>
-                    </div>
-                    <div class="flex flex-col items-center md:items-end">
-                        <div id="val_p_combo_yr" class="text-4xl md:text-6xl font-black mb-4">$99.00</div>
-                        <button onclick="openModal('Ultimate Combo', 'p_combo_yr')" class="btn-premium text-white font-black px-10 py-4 rounded-xl uppercase tracking-widest text-xs">Buy Now</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="p-6 md:p-12 rounded-[2rem] border-4 relative overflow-hidden shadow-2xl bg-[#FEF3C7] border-[#F59E0B]">
-                <div class="relative z-10">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg bg-[#F59E0B]"><i class="fas fa-shield-alt text-white text-2xl"></i></div>
-                        <h2 class="text-2xl md:text-4xl font-black uppercase italic tracking-tighter text-[#92400E]">⚠️ Important Instructions</h2>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 text-[#92400E]">
-                        <div class="space-y-4">
-                            <p class="text-lg md:text-2xl font-black uppercase leading-tight">Payments accepted ONLY via Telegram or WhatsApp.</p>
-                            <div class="space-y-3 font-bold text-sm md:text-lg uppercase">
-                                <p class="flex items-center gap-3"><i class="fas fa-times-circle"></i> Do NOT pay without contacting us.</p>
-                                <p class="flex items-center gap-3"><i class="fas fa-ban"></i> Other methods NOT accepted.</p>
-                            </div>
-                        </div>
-                        <div class="space-y-6">
-                            <div class="flex items-start gap-4 bg-white/40 p-4 rounded-2xl">
-                                <i class="fas fa-clock text-3xl mt-1"></i>
-                                <div>
-                                    <p class="font-black uppercase text-lg tracking-wide">⏳ Activation:</p>
-                                    <p class="text-base font-bold">Usually 30 mins to 2 hours.</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-4 bg-[#92400E] text-white p-5 rounded-2xl shadow-xl pulse-box">
-                                <i class="fas fa-bolt text-3xl mt-1"></i>
-                                <div>
-                                    <p class="font-black uppercase text-lg mb-1">🚀 Fast Activation:</p>
-                                    <p class="text-base font-bold">Send screenshot immediately via WA/TG.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        function updateDisplayPrices() {
-            const keys = { 'p_ai_mo': 'val_p_ai_mo', 'p_ai_yr': 'val_p_ai_yr', 'p_mov_mo': 'val_p_mov_mo', 'p_mov_yr': 'val_p_mov_yr', 'p_learn_mo': 'val_p_learn_mo', 'p_learn_yr': 'val_p_learn_yr', 'p_trade_mo': 'val_p_trade_mo', 'p_trade_yr': 'val_p_trade_yr', 'p_combo_yr': 'val_p_combo_yr' };
-            for (let key in keys) {
-                let savedPrice = localStorage.getItem(key);
-                if (savedPrice) {
-                    let element = document.getElementById(keys[key]);
-                    if(element) element.innerText = "$" + savedPrice;
-                }
-            }
+        function toggleDrawer() {
+            document.getElementById('mobileDrawer').classList.toggle('open');
         }
 
-        function openModal(itemName, priceKey) {
-            window.currentItemName = itemName;
-            window.currentPriceKey = priceKey;
+        function openModal(name, key) {
+            window.currentItem = name;
+            window.currentKey = key;
             document.getElementById('paymentModal').style.display = 'flex';
             document.getElementById('step1').classList.remove('hidden');
             document.getElementById('step2').classList.add('hidden');
-            document.body.style.overflow = 'hidden';
         }
 
         function closeModal() {
             document.getElementById('paymentModal').style.display = 'none';
-            document.body.style.overflow = 'auto';
         }
 
         function nextStep(method) {
             const uid = localStorage.getItem('rynex_user_id') || "N/A";
-            const priceElement = document.getElementById('val_' + window.currentPriceKey);
-            const currentPrice = priceElement ? priceElement.innerText.replace('$', '') : "0";
-            
-            const message = `Hello RYNEX! 👋\n\nUser ID: *${uid}*\nItem: *${window.currentItemName}*\nPrice: *$${currentPrice}*\nMethod: *${method}*`;
-            const encoded = encodeURIComponent(message);
-            
+            const price = document.getElementById('val_' + window.currentKey).innerText;
+            const msg = `Hello RYNEX! 👋\n\nUser ID: *${uid}*\nItem: *${window.currentItem}*\nPrice: *${price}*\nMethod: *${method}*`;
+            const encoded = encodeURIComponent(msg);
             document.getElementById('waLink').href = `https://wa.me/94750810385?text=${encoded}`;
             document.getElementById('tgLink').href = `https://t.me/RYNEX03?text=${encoded}`;
-            
             document.getElementById('step1').classList.add('hidden');
             document.getElementById('step2').classList.remove('hidden');
         }
 
-        function setupUserID() {
-            const userEmail = localStorage.getItem('userEmail');
-            if (!userEmail) return;
-            let userSpecificKey = 'rynex_id_' + btoa(userEmail).replace(/=/g, "").substring(0, 10);
-            let userID = localStorage.getItem(userSpecificKey) || "RZY-1001";
-            document.getElementById('userIDDisplayDesktop').innerText = "ID: " + userID;
-            document.getElementById('userIDDisplayMobile').innerText = "ID: " + userID;
-            localStorage.setItem('rynex_user_id', userID);
+        function setup() {
+            const email = localStorage.getItem('userEmail');
+            if(!email) window.location.href = 'login.html';
+            let id = localStorage.getItem('rynex_user_id') || "RZY-1001";
+            document.getElementById('mobileUserID').innerText = "ID: " + id;
+            document.getElementById('desktopUserID').innerText = "ID: " + id;
+            
+            // Sync prices from localStorage
+            const keys = ['p_ai_mo', 'p_ai_yr', 'p_mov_mo', 'p_mov_yr', 'p_learn_mo', 'p_learn_yr', 'p_trade_mo', 'p_trade_yr', 'p_combo_yr'];
+            keys.forEach(k => {
+                let p = localStorage.getItem(k);
+                if(p) {
+                    let el = document.getElementById('val_' + k);
+                    if(el) el.innerText = "$" + p;
+                }
+            });
         }
 
-        window.onload = function() {
-            setupUserID();
-            updateDisplayPrices();
-            if(!localStorage.getItem('userEmail')) window.location.href = 'login.html';
-        };
-
-        window.onclick = function(e) { if (e.target.id == 'paymentModal') closeModal(); }
+        window.onload = setup;
+        window.onclick = (e) => { if(e.target.id === 'paymentModal') closeModal(); }
     </script>
 </body>
 </html>
+
