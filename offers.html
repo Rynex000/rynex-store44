@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYNEX STORE | Special Offers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #070b14;
+            --sidebar-dark: rgba(10, 15, 29, 0.8);
+        }
+
+        body { 
+            background: radial-gradient(circle at top right, #1e293b, #070b14, #0f172a);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            background-attachment: fixed;
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .sidebar { 
+            background-color: var(--sidebar-dark);
+            backdrop-filter: blur(15px);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .offer-badge {
+            background: linear-gradient(90deg, #f59e0b, #ef4444);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.2); border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <div class="w-full md:w-72 sidebar p-6 border-r border-white/5">
+            <div class="flex items-center gap-3 mb-12">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <i class="fas fa-bolt text-white"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-black text-white uppercase leading-none">Rynex</h2>
+                    <p id="sidebarUserID" class="text-[10px] text-purple-400 font-bold uppercase tracking-widest mt-1">ID: LOADING...</p>
+                </div>
+            </div>
+
+            <nav class="space-y-2 text-sm">
+                <a href="index.html" class="flex items-center p-3 rounded-xl hover:bg-white/5 text-slate-400 transition">
+                    <i class="fas fa-th-large w-6 mr-3"></i> Dashboard
+                </a>
+                <a href="profile.html" class="flex items-center p-3 rounded-xl hover:bg-white/5 text-slate-400 transition">
+                    <i class="fas fa-user w-6 mr-3"></i> Profile Page
+                </a>
+                <a href="order.html" class="flex items-center p-3 rounded-xl hover:bg-white/5 text-slate-400 transition">
+                    <i class="fas fa-shopping-bag w-6 mr-3"></i> Order Page
+                </a>
+                <a href="offers.html" class="flex items-center p-3 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 font-bold">
+                    <i class="fas fa-fire w-6 mr-3 text-orange-500"></i> Special Offers
+                </a>
+                <div class="pt-10">
+                    <a href="#" onclick="localStorage.removeItem('userEmail'); window.location.href='login.html'" class="flex items-center p-3 rounded-xl hover:bg-red-500/10 text-red-500 transition">
+                        <i class="fas fa-sign-out-alt w-6 mr-3"></i> Logout
+                    </a>
+                </div>
+            </nav>
+        </div>
+
+        <div class="flex-1 p-6 lg:p-12 overflow-y-auto">
+            <header class="mb-10">
+                <h1 class="text-5xl font-black italic uppercase tracking-tighter">Special Offers</h1>
+                <p class="text-slate-400 text-sm mt-2 italic font-medium">Exclusive deals from Admin Panel</p>
+            </header>
+
+            <div id="offersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                </div>
+            
+            <div id="noOffersMsg" class="hidden mt-12 glass-card p-10 rounded-[3rem] text-center">
+                <p class="text-slate-500 uppercase font-black text-xs tracking-widest">No Special Offers Today!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function displayOffers() {
+            const container = document.getElementById('offersContainer');
+            // Admin eken save karana data gannawa
+            const data = localStorage.getItem('rynex_special_offers');
+            const offers = data ? JSON.parse(data) : [];
+
+            if (offers.length === 0) {
+                document.getElementById('noOffersMsg').classList.remove('hidden');
+                return;
+            }
+
+            container.innerHTML = ""; // Parana ewa clear karanawa
+
+            offers.forEach(offer => {
+                container.innerHTML += `
+                    <div class="glass-card p-8 rounded-[2.5rem] relative overflow-hidden">
+                        ${offer.badge ? `<div class="absolute top-5 right-5 offer-badge text-[9px] font-black px-4 py-1 rounded-full uppercase">${offer.badge}</div>` : ''}
+                        <div class="w-14 h-14 bg-blue-600/20 rounded-2xl flex items-center justify-center text-blue-500 mb-6 shadow-inner">
+                            <i class="fas ${offer.icon || 'fa-gift'} text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-black uppercase tracking-tighter mb-3 text-white">${offer.name}</h3>
+                        <p class="text-slate-400 text-xs mb-8 leading-relaxed">${offer.description}</p>
+                        <div class="flex items-center justify-between mt-auto">
+                            <div>
+                                ${offer.oldPrice ? `<span class="text-slate-500 line-through text-xs font-bold">$${offer.oldPrice}</span>` : ''}
+                                <span class="text-3xl font-black text-white block mt-1">$${offer.price}</span>
+                            </div>
+                            <button onclick="window.open('https://t.me/RYNEX03', '_blank')" class="px-6 py-3 bg-blue-600 text-white text-[10px] font-black uppercase rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20">Claim</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.onload = function() {
+            const savedEmail = localStorage.getItem('userEmail');
+            if(!savedEmail) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            let userID = localStorage.getItem('rynex_user_id') || "RZY-0050";
+            document.getElementById('sidebarUserID').innerText = "ID: " + userID;
+
+            // Load the dynamic offers
+            displayOffers();
+        }
+    </script>
+</body>
+</html>

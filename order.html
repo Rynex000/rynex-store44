@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYNEX STORE | My Orders</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #070b14;
+            --sidebar-dark: rgba(10, 15, 29, 0.8);
+            --electric-blue: #2563EB;
+            --neon-purple: #7C3AED;
+        }
+
+        body { 
+            background: radial-gradient(circle at top right, #1e293b, #070b14, #0f172a);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            background-attachment: fixed;
+            color: white;
+            font-family: ui-sans-serif, system-ui, sans-serif;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .sidebar { 
+            background-color: var(--sidebar-dark);
+            backdrop-filter: blur(15px);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .status-completed { color: #22c55e; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2); }
+        .status-pending { color: #eab308; background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.2); }
+        
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <div class="flex flex-col md:flex-row min-h-screen relative z-10">
+        <div class="w-full md:w-72 sidebar p-6 border-r border-white/5">
+            <div class="flex items-center gap-3 mb-12">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-bolt text-white"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-black text-white uppercase leading-none">Rynex</h2>
+                    <p id="sidebarUserID" class="text-[10px] text-purple-400 font-bold uppercase tracking-widest mt-1 italic">
+                        ID: LOADING...
+                    </p>
+                </div>
+            </div>
+
+            <nav class="space-y-2 text-sm">
+                <a href="index.html" class="flex items-center p-3 rounded-xl hover:bg-white/5 text-slate-400 transition">
+                    <i class="fas fa-th-large w-6 mr-3"></i> Dashboard
+                </a>
+                <a href="profile.html" class="flex items-center p-3 rounded-xl hover:bg-white/5 text-slate-400 transition">
+                    <i class="fas fa-user w-6 mr-3"></i> Profile Page
+                </a>
+                <a href="order.html" class="flex items-center p-3 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 font-bold">
+                    <i class="fas fa-shopping-bag w-6 mr-3"></i> Order Page
+                </a>
+                <a href="offers.html" class="flex items-center p-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition">
+                    <i class="fas fa-fire w-6 mr-3 text-orange-500"></i> Special Offers
+                </a>
+
+                <div class="pt-10">
+                    <a href="#" onclick="localStorage.removeItem('userEmail'); window.location.href='login.html'" class="flex items-center p-3 rounded-xl hover:bg-red-500/10 text-red-500 transition">
+                        <i class="fas fa-sign-out-alt w-6 mr-3"></i> Logout
+                    </a>
+                </div>
+            </nav>
+        </div>
+
+        <div class="flex-1 p-6 lg:p-12 overflow-y-auto">
+            <header class="mb-10">
+                <h1 class="text-5xl font-black italic uppercase tracking-tighter">Purchase History</h1>
+                <p class="text-slate-400 text-sm mt-1 italic font-medium">Track and manage your digital subscriptions</p>
+            </header>
+
+            <div id="tableContainer" class="glass-card rounded-[2.5rem] overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-white/5 text-[10px] uppercase tracking-[0.2em] text-slate-400 font-black">
+                                <th class="p-6">Service Name</th>
+                                <th class="p-6">Date</th>
+                                <th class="p-6">Price</th>
+                                <th class="p-6 text-center">Status</th>
+                                <th class="p-6 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userOrderList" class="text-xs divide-y divide-white/5">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="emptyMsg" class="hidden mt-10 text-center p-20 glass-card rounded-[2.5rem]">
+                <i class="fas fa-shopping-basket text-4xl text-slate-700 mb-4"></i>
+                <p class="text-slate-500 font-black uppercase text-xs tracking-widest">No orders found yet</p>
+                <a href="index.html" class="inline-block mt-4 text-blue-500 hover:text-blue-400 text-[10px] font-black uppercase tracking-widest">Go to Store <i class="fas fa-arrow-right ml-1"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadUserOrders() {
+            const currentUserEmail = localStorage.getItem('userEmail');
+            const data = localStorage.getItem('rynex_all_orders');
+            const orders = data ? JSON.parse(data) : [];
+            const list = document.getElementById('userOrderList');
+            const tableContainer = document.getElementById('tableContainer');
+            const emptyMsg = document.getElementById('emptyMsg');
+
+            // Filter orders only for this user
+            const myOrders = orders.filter(order => order.email === currentUserEmail);
+
+            if (myOrders.length === 0) {
+                tableContainer.classList.add('hidden');
+                emptyMsg.classList.remove('hidden');
+                return;
+            }
+
+            tableContainer.classList.remove('hidden');
+            emptyMsg.classList.add('hidden');
+            list.innerHTML = "";
+
+            // Newest orders first
+            [...myOrders].reverse().forEach((order) => {
+                const statusClass = order.status === 'Completed' ? 'status-completed' : 'status-pending';
+                
+                list.innerHTML += `
+                    <tr class="hover:bg-white/[0.02] transition">
+                        <td class="p-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center text-blue-500 text-[10px] font-black uppercase">
+                                    ${order.service.substring(0, 2)}
+                                </div>
+                                <span class="font-bold uppercase tracking-tight text-white">${order.service}</span>
+                            </div>
+                        </td>
+                        <td class="p-6 text-slate-400 italic">${order.date.split(',')[0]}</td>
+                        <td class="p-6 font-black text-blue-400 text-lg">$${order.price}</td>
+                        <td class="p-6 text-center">
+                            <span class="${statusClass} px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter">
+                                ${order.status}
+                            </span>
+                        </td>
+                        <td class="p-6 text-center">
+                            <button onclick="window.open('https://t.me/RYNEX03', '_blank')" class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-[9px] font-black uppercase transition tracking-widest border border-white/5">Support</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        window.onload = function() {
+            const savedEmail = localStorage.getItem('userEmail');
+            if(!savedEmail) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // User ID Setup
+            let userID = localStorage.getItem('rynex_user_id');
+            if (!userID) {
+                let globalCounter = localStorage.getItem('rynex_global_counter') || 50;
+                let currentCount = parseInt(globalCounter);
+                userID = "RZY-" + currentCount.toString().padStart(4, '0');
+                localStorage.setItem('rynex_user_id', userID);
+                localStorage.setItem('rynex_global_counter', currentCount + 1);
+            }
+            document.getElementById('sidebarUserID').innerText = "ID: " + userID;
+
+            // Load Orders
+            loadUserOrders();
+        }
+    </script>
+</body>
+</html>
