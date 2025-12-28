@@ -2,17 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>RYNEX STORE | My Profile</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary-dark: #070b14;
-            --sidebar-dark: rgba(10, 15, 29, 0.8);
+            --sidebar-dark: rgba(10, 15, 29, 0.95);
         }
 
-        /* --- Animated Background (Matching Dashboard) --- */
         body { 
             background: radial-gradient(circle at top right, #1e293b, #070b14, #0f172a);
             background-size: 400% 400%;
@@ -28,9 +27,13 @@
             100% { background-position: 0% 50%; }
         }
 
-        .sidebar { 
-            background-color: var(--sidebar-dark);
-            backdrop-filter: blur(15px);
+        /* Mobile Drawer Logic */
+        #mobileDrawer {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-100%);
+        }
+        #mobileDrawer.open {
+            transform: translateX(0);
         }
 
         .glass-card {
@@ -38,7 +41,6 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            transition: all 0.3s ease;
         }
 
         .input-glass {
@@ -47,28 +49,60 @@
             color: white;
         }
 
-        /* Modal Style */
         .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(12px);
-            z-index: 100;
-            align-items: center;
-            justify-content: center;
+            display: none; position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(12px);
+            z-index: 1000; align-items: center; justify-content: center;
         }
-
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
     </style>
 </head>
 <body class="min-h-screen">
 
+    <div class="md:hidden flex items-center justify-between p-5 bg-[#0a0f1d]/90 backdrop-blur-lg sticky top-0 z-50 border-b border-white/10">
+        <button onclick="toggleDrawer()" class="w-10 h-10 flex items-center justify-center rounded-lg bg-blue-600/20 border border-blue-500/30">
+            <i class="fas fa-bars text-blue-400 text-xl"></i>
+        </button>
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center text-[10px]"><i class="fas fa-bolt"></i></div>
+            <span class="font-black italic tracking-tighter uppercase text-sm">RYNEX STORE</span>
+        </div>
+    </div>
+
+    <div id="mobileDrawer" class="fixed inset-0 z-[60] md:hidden">
+        <div onclick="toggleDrawer()" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+        <div class="absolute inset-y-0 left-0 w-80 bg-[#070b14] border-r border-blue-500/20 p-8 flex flex-col">
+            <div class="flex items-center justify-between mb-12">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center"><i class="fas fa-bolt"></i></div>
+                    <h2 class="text-xl font-black italic tracking-tighter uppercase">RYNEX</h2>
+                </div>
+                <button onclick="toggleDrawer()" class="text-slate-500"><i class="fas fa-times text-2xl"></i></button>
+            </div>
+            <nav class="space-y-3 flex-1">
+                <a href="index.html" class="flex items-center p-4 rounded-2xl hover:bg-white/5 text-slate-400 transition-all">
+                    <i class="fas fa-th-large w-10 text-xl"></i> Dashboard
+                </a>
+                <a href="profile.html" class="flex items-center p-4 rounded-2xl bg-blue-600/10 border border-blue-500/20 text-blue-400 font-bold">
+                    <i class="fas fa-user w-10 text-xl"></i> Profile Page
+                </a>
+                <a href="order.html" class="flex items-center p-4 rounded-2xl hover:bg-white/5 text-slate-400 transition-all">
+                    <i class="fas fa-shopping-bag w-10 text-xl"></i> Order Page
+                </a>
+                <a href="offers.html" class="flex items-center p-4 rounded-2xl hover:bg-white/5 text-slate-400 transition-all">
+                    <i class="fas fa-fire w-10 text-xl text-orange-500"></i> Special Offers
+                </a>
+            </nav>
+            <div class="pt-8 border-t border-white/5">
+                <button onclick="logout()" class="w-full flex items-center p-4 rounded-2xl text-red-500 bg-red-500/5 font-bold">
+                    <i class="fas fa-sign-out-alt w-10 text-xl"></i> Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="actionModal" class="modal px-4">
         <div class="glass-card p-8 rounded-3xl w-full max-w-sm border-t-2 border-blue-600">
-            <h3 id="modalTitle" class="text-lg font-bold uppercase mb-4 text-white">Action</h3>
+            <h3 id="modalTitle" class="text-lg font-bold uppercase mb-4">Action</h3>
             <div id="modalBody" class="space-y-4"></div>
             <div class="flex gap-3 mt-6">
                 <button onclick="closeModal()" class="flex-1 py-3 rounded-xl bg-slate-800 font-bold text-xs uppercase text-slate-400">Cancel</button>
@@ -78,77 +112,47 @@
     </div>
 
     <div class="flex flex-col md:flex-row min-h-screen relative z-10">
-        <div class="w-full md:w-72 sidebar p-6 border-r border-white/5">
+        <div class="hidden md:flex w-72 bg-[#0a0f1d]/80 backdrop-blur-xl p-8 border-r border-white/5 flex-col h-screen sticky top-0">
             <div class="flex items-center gap-3 mb-12">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-bolt text-white"></i>
-                </div>
-                <div>
-                    <h2 class="text-lg font-black text-white uppercase leading-none">Rynex</h2>
-                    <p id="sidebarUserID" class="text-[10px] text-purple-400 font-bold uppercase tracking-widest mt-1 italic">
-                        ID: LOADING...
-                    </p>
-                </div>
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center"><i class="fas fa-bolt"></i></div>
+                <div><h2 class="text-lg font-black uppercase leading-none">Rynex</h2><p id="sidebarUserID" class="text-[10px] text-purple-400 font-bold uppercase mt-1">ID: LOADING...</p></div>
             </div>
-
             <nav class="space-y-2 text-sm">
-                <a href="index.html" class="flex items-center p-3 rounded-xl hover:bg-white/5 text-slate-400 transition">
-                    <i class="fas fa-th-large w-6 mr-3"></i> Dashboard
-                </a>
-                <a href="profile.html" class="flex items-center p-3 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 font-bold">
-                    <i class="fas fa-user w-6 mr-3"></i> Profile Page
-                </a>
-                <a href="order.html" class="flex items-center p-3 rounded-xl hover:bg-white/5 text-slate-400 transition">
-                    <i class="fas fa-shopping-bag w-6 mr-3"></i> Order Page
-                </a>
-                
-                <a href="offers.html" class="flex items-center p-3 rounded-xl hover:bg-white/5 text-slate-400 hover:text-white transition">
-                    <i class="fas fa-fire w-6 mr-3 text-orange-500"></i> Special Offers
-                </a>
-
-                <div class="pt-10">
-                    <a href="login.html" class="flex items-center p-3 rounded-xl hover:bg-red-500/10 text-red-500 transition">
-                        <i class="fas fa-sign-out-alt w-6 mr-3"></i> Logout
-                    </a>
-                </div>
+                <a href="index.html" class="flex items-center p-3 rounded-xl hover:bg-white/5 text-slate-400 transition"><i class="fas fa-th-large w-6 mr-3"></i> Dashboard</a>
+                <a href="profile.html" class="flex items-center p-3 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 font-bold"><i class="fas fa-user w-6 mr-3"></i> Profile Page</a>
+                <a href="order.html" class="flex items-center p-3 rounded-xl hover:bg-white/5 text-slate-400 transition"><i class="fas fa-shopping-bag w-6 mr-3"></i> Order Page</a>
+                <a href="offers.html" class="flex items-center p-3 rounded-xl hover:bg-white/5 text-slate-400 transition"><i class="fas fa-fire w-6 mr-3 text-orange-500"></i> Special Offers</a>
+                <div class="pt-10"><button onclick="logout()" class="flex items-center p-3 rounded-xl hover:bg-red-500/10 text-red-500 w-full text-left transition"><i class="fas fa-sign-out-alt w-6 mr-3"></i> Logout</button></div>
             </nav>
         </div>
 
-        <div class="flex-1 p-6 lg:p-12 overflow-y-auto">
+        <div class="flex-1 p-6 md:p-12 overflow-y-auto">
             <header class="mb-10">
-                <h1 class="text-5xl font-black italic uppercase tracking-tighter">User Profile</h1>
+                <h1 class="text-4xl md:text-5xl font-black italic uppercase tracking-tighter">User Profile</h1>
                 <p class="text-slate-400 text-sm mt-1 italic font-medium">Manage your account information</p>
             </header>
 
             <div class="max-w-4xl space-y-6">
-                <div class="glass-card p-10 rounded-[2.5rem] flex flex-col items-center text-center">
-                    <div class="w-24 h-24 bg-gradient-to-br from-slate-800 to-slate-900 rounded-full flex items-center justify-center mb-4 border border-slate-700 shadow-xl relative group">
+                <div class="glass-card p-8 md:p-10 rounded-[2.5rem] flex flex-col items-center text-center">
+                    <div class="w-24 h-24 bg-gradient-to-br from-slate-800 to-slate-900 rounded-full flex items-center justify-center mb-4 border border-slate-700 relative">
                         <i class="fas fa-user text-4xl text-slate-500"></i>
-                        <div class="absolute inset-0 rounded-full bg-blue-600/20 blur-xl opacity-0 group-hover:opacity-100 transition"></div>
                     </div>
-                    <h2 id="userNameDisp" class="text-3xl font-black uppercase tracking-tighter">RYNEX USER</h2>
-                    <p id="userEmailDisp" class="text-slate-500 text-xs mb-6 tracking-widest font-bold">LOADING@RYNEX.COM</p>
-                    <button onclick="openEditProfile()" class="px-10 py-3 bg-blue-600 text-white font-bold rounded-xl uppercase text-[10px] tracking-widest hover:scale-105 transition shadow-lg shadow-blue-500/20">Edit Profile</button>
+                    <h2 id="userNameDisp" class="text-2xl md:text-3xl font-black uppercase tracking-tighter">RYNEX USER</h2>
+                    <p id="userEmailDisp" class="text-slate-500 text-xs mb-6 font-bold">LOADING@RYNEX.COM</p>
+                    <button onclick="openEditProfile()" class="px-10 py-3 bg-blue-600 text-white font-bold rounded-xl uppercase text-[10px] tracking-widest hover:scale-105 transition">Edit Profile</button>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="glass-card p-8 rounded-[2.5rem]">
-                        <h3 class="text-[10px] font-black uppercase mb-6 text-slate-500 tracking-[0.2em]">Security Settings</h3>
-                        <div class="space-y-3">
-                            <button onclick="openChangePass()" class="w-full flex justify-between items-center p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition text-xs font-bold uppercase">
-                                <span>Change Password</span>
-                                <i class="fas fa-chevron-right text-slate-600"></i>
-                            </button>
-                            <button onclick="openLoginHistory()" class="w-full flex justify-between items-center p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition text-xs font-bold uppercase">
-                                <span>Login History</span>
-                                <i class="fas fa-chevron-right text-slate-600"></i>
-                            </button>
+                        <h3 class="text-[10px] font-black uppercase mb-6 text-slate-500 tracking-widest">Security Settings</h3>
+                        <div class="space-y-3 text-xs font-bold uppercase">
+                            <button onclick="openChangePass()" class="w-full flex justify-between items-center p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition"><span>Change Password</span><i class="fas fa-chevron-right text-slate-600"></i></button>
+                            <button onclick="openLoginHistory()" class="w-full flex justify-between items-center p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition"><span>Login History</span><i class="fas fa-chevron-right text-slate-600"></i></button>
                         </div>
                     </div>
-
-                    <div class="glass-card p-8 rounded-[2.5rem] border-red-900/10">
-                        <h3 class="text-[10px] font-black uppercase mb-6 text-red-500 tracking-[0.2em]">Account Control</h3>
-                        <p class="text-[10px] text-slate-500 mb-6 italic leading-relaxed">Permanently remove your account and all subscription data from Rynex servers.</p>
+                    <div class="glass-card p-8 rounded-[2.5rem]">
+                        <h3 class="text-[10px] font-black uppercase mb-6 text-red-500 tracking-widest">Account Control</h3>
+                        <p class="text-[10px] text-slate-500 mb-6 italic leading-relaxed">Permanently remove your data from Rynex servers.</p>
                         <button onclick="confirmDelete()" class="w-full py-4 bg-red-600/10 text-red-500 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-red-600 hover:text-white transition">Delete Account</button>
                     </div>
                 </div>
@@ -161,8 +165,9 @@
         const modalTitle = document.getElementById('modalTitle');
         const modalBody = document.getElementById('modalBody');
 
+        function toggleDrawer() { document.getElementById('mobileDrawer').classList.toggle('open'); }
+
         window.onload = function() {
-            // 1. Security Check
             const savedEmail = localStorage.getItem('userEmail');
             if(savedEmail) {
                 document.getElementById('userEmailDisp').innerText = savedEmail.toUpperCase();
@@ -171,16 +176,7 @@
                 window.location.href = 'login.html';
                 return;
             }
-
-            // 2. Load User ID (Shared with Dashboard)
-            let userID = localStorage.getItem('rynex_user_id');
-            if (!userID) {
-                let globalCounter = localStorage.getItem('rynex_global_counter') || 50;
-                let currentCount = parseInt(globalCounter);
-                userID = "RZY-" + currentCount.toString().padStart(4, '0');
-                localStorage.setItem('rynex_user_id', userID);
-                localStorage.setItem('rynex_global_counter', currentCount + 1);
-            }
+            let userID = localStorage.getItem('rynex_user_id') || "RZY-1001";
             document.getElementById('sidebarUserID').innerText = "ID: " + userID;
         }
 
@@ -191,42 +187,19 @@
         }
 
         function closeModal() { modal.style.display = 'none'; }
-
-        function openEditProfile() {
-            openModal('Edit Profile', `
-                <input type="text" placeholder="Full Name" class="input-glass w-full p-4 rounded-xl text-sm mb-2 outline-none focus:border-blue-500">
-                <input type="email" placeholder="Email Address" class="input-glass w-full p-4 rounded-xl text-sm outline-none focus:border-blue-500">
-            `);
-        }
-
-        function openChangePass() {
-            openModal('Update Password', `
-                <input type="password" placeholder="Current Password" class="input-glass w-full p-4 rounded-xl text-sm mb-2 outline-none focus:border-blue-500">
-                <input type="password" placeholder="New Password" class="input-glass w-full p-4 rounded-xl text-sm outline-none focus:border-blue-500">
-            `);
-        }
-
-        function openLoginHistory() {
-            openModal('Activity Log', `
-                <div class="text-[10px] text-slate-400 space-y-3 font-bold uppercase">
-                    <div class="flex justify-between border-b border-white/5 pb-2"><span>Windows • Chrome</span> <span class="text-blue-500 italic">Active Now</span></div>
-                    <div class="flex justify-between border-b border-white/5 pb-2"><span>Android • Mobile</span> <span class="text-slate-600 italic">2 Hours ago</span></div>
-                </div>
-            `);
-        }
+        function openEditProfile() { openModal('Edit Profile', `<input type="text" placeholder="Full Name" class="input-glass w-full p-4 rounded-xl text-sm mb-2 outline-none"><input type="email" placeholder="Email Address" class="input-glass w-full p-4 rounded-xl text-sm outline-none">`); }
+        function openChangePass() { openModal('Update Password', `<input type="password" placeholder="Current Password" class="input-glass w-full p-4 rounded-xl text-sm mb-2 outline-none"><input type="password" placeholder="New Password" class="input-glass w-full p-4 rounded-xl text-sm outline-none">`); }
+        function openLoginHistory() { openModal('Activity Log', `<div class="text-[10px] text-slate-400 space-y-3 font-bold uppercase"><div class="flex justify-between border-b border-white/5 pb-2"><span>Windows • Chrome</span> <span class="text-blue-500 italic">Active Now</span></div><div class="flex justify-between border-b border-white/5 pb-2"><span>Android • Mobile</span> <span class="text-slate-600 italic">2 Hours ago</span></div></div>`); }
 
         function confirmDelete() {
-            if(confirm("Are you absolutely sure? This cannot be undone.")) {
+            if(confirm("Are you absolutely sure?")) {
                 localStorage.clear();
                 window.location.href = 'login.html';
             }
         }
 
-        function saveAction() {
-            alert('Settings updated successfully!');
-            closeModal();
-        }
-
+        function saveAction() { alert('Settings updated!'); closeModal(); }
+        function logout() { localStorage.removeItem('userEmail'); window.location.href = 'login.html'; }
         window.onclick = function(event) { if (event.target == modal) closeModal(); }
     </script>
 </body>
